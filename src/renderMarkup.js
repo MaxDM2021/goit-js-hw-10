@@ -1,19 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Homework 10</title>
-  </head>
-  <body>
-    <input type="text" name="query" id="search-box" placeholder="Какую страну ищем?"
-    autocomplete="off"/>
-    <ul class="country-list"></ul>
-    <div class="country-info"></div>
-
-
-    <!-- <div class="country-info__card">
+export function renderMarkupCountryInfo ({
+    name, 
+    capital,
+    population,
+    languages,
+    flags,
+}) {
+    return `
+<div class="country-info__card">
 <h2 class="country-info__name">${name.common}</h2>
 <img src="${flags.svg}" class="country-info__flag" width="220px" height="140px">
 <ul class="country-info-features">
@@ -31,18 +24,15 @@
   </li>
 </ul>
 </div>
+`;
+}
 
 
-
+export function renderMarkupCountryList ({name, flags,}) {
+return `
 <li class="country__item">
   <img src="${flags.svg}" alt="flag" width="20" height="20">
   <p><b>${name.common}</b></p>
-</li> -->
-
-
-
-
-
-    <script src="index.js" type="module"></script>
-  </body>
-</html>
+</li>
+`;
+}

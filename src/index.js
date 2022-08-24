@@ -1,17 +1,19 @@
 import './css/styles.css';
-import handelbars from 'express-handlebars';
-
 import Notiflix from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.5.min.css';
 import debounce from 'lodash.debounce';
-import countryCardTpl from './templates/country-card.hbs';
+import {
+  renderMarkupCountryInfo,
+  renderMarkupCountryList,
+} from './renderMarkup';
 import getRefs from './get-refs';
+import API from './fetchCountries'
 
-import API from './fetchContries'
-
-const refs = getRefs();
 
 const DEBOUNCE_DELAY = 300;
+let LIMIT_COUNTRY = 10;
+
+const refs = getRefs();
 
 
   refs.searchForm.addEventListener('input', debounce(onSearch, DEBOUNCE_DELAY))
@@ -25,15 +27,20 @@ const DEBOUNCE_DELAY = 300;
       clearMarkup()
       return;
     }
-
-
     
-    API.fetchContries(searchQuery)
+    API.fetchCountries(searchQuery)
     .then(renderCountryCard)
     .catch(onFetchError)
     .finally(() => form.reset());
     }
-  
+
+
+function onFetchError () {
+  clearMarkup();
+  Notiflix.Notify.failure('❌ Oops, there is no country with that name', {
+    timeout: 2000,
+  });
+}
 
 function clearMarkup() {
   refs.countryInfoContainer.innerHTML = '';
@@ -41,43 +48,29 @@ function clearMarkup() {
 }
 
 
+  function renderCountryCard(countries) {
+    clearMarkup();
+if (countries.length > LIMIT_COUNTRY) {
+  Notiflix.Notify.info('Too many matches found. Please enter a more specific name.', {
+    timeout: 2000,
+  });
+  return
 
-    const filteredItems = e.filter(t => t.name.toLocaleLowerCase().includes(searchQuery))
+} else if (countries.length === 1) {
+  refs.countryInfoContainer.innerHTML = renderMarkupCountryInfo(countries[0]);
 
-    const listItemsMarkup = createListItemsMarkup(filteredItems);
-    populateList(listItemsMarkup);
-  
-  
-
-
-  function createListItemsMarkup(items) {
-    return items.map(item => `<li>${item.name.official}</li>`).join('');
+}else {
+  let countryListContainer = "";
+ countries.map(country => {
+  countryListContainer += renderMarkupCountryList(country);
+ })
+  refs.countryListContainer.insertAdjacentHTML('beforeend',  countryListContainer)
 }
-
-   function onFilterChange (evt) {   
-  const filter = evt.target.value.toLowerCase();
+}
   
-  const filteredItems = tech.filter(t => t.label.toLocaleLowerCase().includes(filter))
-  
-  const listItemsMarkup = createListItemsMarkup(filteredItems);
-  
-  populateList(listItemsMarkup);
-  }
-  
-  function populateList(markup) {
-      refs.list.innerHTML = markup;
-  }
 
 
 
 
-  function renderCountryCard(country) {
-    const markup = countryCardTpl(country);
-    refs.countryInfoContainer.innerHTML = markup;
-  }
-  
-  function onFetchError (error) {
-    Notiflix.Notify.failure('❌ Oops, there is no country with that name', {
-      timeout: 2000,
-    });
-  }
+
+
